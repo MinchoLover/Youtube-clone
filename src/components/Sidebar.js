@@ -1,14 +1,28 @@
 import styled from 'styled-components';
+import { FaHome, FaYoutube, FaMusic, FaSave, FaUser, FaVideo } from 'react-icons/fa';
 
 const Sidebar = () => {
   return (
     <>
       <SidebarWrapper>
         <SidebarContainer>
-          <h1>홈</h1>
-          <h1>쇼츠</h1>
-          <h1>구독</h1>
-          <h1>유튜브 뮤직</h1>
+          <SidebarItem>
+            <FaHome />
+            <span>홈</span>
+          </SidebarItem>
+          <SidebarItem>
+            <FaVideo />
+            <span>Shorts</span>
+          </SidebarItem>
+          <SidebarItem>
+            <FaYoutube />
+            <span>구독</span>
+          </SidebarItem>
+          <SidebarItem>
+            <FaMusic />
+            <span>Youtube Music</span>
+          </SidebarItem>
+         
           <h1>내 페이지</h1>
           <h1>오프라인 저장</h1>
         </SidebarContainer>
@@ -22,9 +36,23 @@ export default Sidebar;
 const SidebarWrapper = styled.aside`
   position: fixed;
   width: 200px;
-  top: 100px;
+  top: 50px;
 `;
+
 const SidebarContainer = styled.div`
   
-  background-color: #f8f9fa;
+`;
+
+const SidebarItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f1f1f1;
+  }
+  span {
+    margin-left: 20px;
+    font-size: 14px;
+  }
 `;

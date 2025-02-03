@@ -73,7 +73,7 @@ const HeaderWrapper = styled.header`
   top: 0;
   left: 0;
   width: 100%;
-  /* background-color: black; */
+  background-color: white;
   z-index: 100;
 `;
 

@@ -7,25 +7,33 @@ const Layout = () => {
   return(
     <>
       <Header />
-      <Sidebar />
+        <Sidebar />
+    <Container>
       <Content>
         <ContentScroll>
           <Outlet />
         </ContentScroll>
       </Content>
+    </Container>
     </>
   );
 }
 
 export default Layout;
 
+const Container = styled.div`
+  display: flex;
+  height: 100vh;
+`;
+
 const Content = styled.div`
-  position: relative;
   overflow-y: auto;
   height: 100vh;
 `;
 
 const ContentScroll = styled.div`
+  width: calc(100vw - 200px);
+  height: 100vh;
   margin-left: 200px;
   margin-top: 100px;
 `;

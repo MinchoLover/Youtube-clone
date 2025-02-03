@@ -1,23 +1,24 @@
 import { Outlet } from "react-router-dom";
-import styled from 'styled-components';
+// import { VideoProvider } from "./VideoContext";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import styled from 'styled-components';
 
 const Layout = () => {
-  return(
+  return (
     <>
       <Header />
-        <Sidebar />
-    <Container>
-      <Content>
-        <ContentScroll>
-          <Outlet />
-        </ContentScroll>
-      </Content>
-    </Container>
+      <Sidebar />
+      <Container>
+        <Content>
+          <ContentScroll>
+            <Outlet />
+          </ContentScroll>
+        </Content>
+      </Container>
     </>
   );
-}
+};
 
 export default Layout;
 

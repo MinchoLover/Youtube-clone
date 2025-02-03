@@ -1,73 +1,90 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { useState } from "react";
+import axios from "axios";
+// import { useVideo } from "./VideoContext";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
-const Header = () => {
-  // SearchBarInput에 포커스할 시, searchIcon을 true로 바꿈
+const API_KEY = process.env.REACT_APP_API_KEY;
+const SEARCH_API_URL = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&regionCode=KR&key=${API_KEY}`;
+
+const Header = ({setVideos}) => {
+  // const { setVideos } = useVideo();
   const [searchLogo, setSearchLogo] = useState(false);
-  // 음석인식 훅
+  const [searchTerm, setSearchTerm] = useState(""); 
   const { transcript, listening } = useSpeechRecognition();
 
+  // 음성 인식 토글
   const toggleListening = () => {
     if (listening) {
       SpeechRecognition.stopListening();
     } else {
-      SpeechRecognition.startListening({ 
-        continuous: true,
-        interimResults: true,
-        language: 'ko-KR'
-      });
+      SpeechRecognition.startListening({ continuous: true, interimResults: true, language: "ko-KR" });
+    }
+  };
+
+  // 검색 요청 함수
+  const handleSearch = async (event) => {
+    event.preventDefault(); 
+    console.log("검색 버튼 클릭됨");
+    if (!searchTerm.trim()) return; 
+  
+    try {
+      const response = await axios.get(`${SEARCH_API_URL}&q=${encodeURIComponent(searchTerm)}`);
+      console.log("API 응답:", response.data);
+      setVideos(response.data.items.map(item => ({
+        id: item.id.videoId,
+        snippet: item.snippet
+      })));
+    } catch (error) {
+      console.error("검색 요청 실패:", error);
     }
   };
 
   return (
-    <>
-      <HeaderWrapper>
-        <HeaderContainer>
+    <HeaderWrapper>
+      <HeaderContainer>
+        {/* 사이드바 + 유튜브 로고 */}
+        <HeaderLogo>
+          <img src="/icons/sidebarIcon.svg" alt="Sidebar Logo" style={{ width: "24px" }} />
+          <img src="/icons/youtubeLogo.svg" alt="YouTube Logo" style={{ width: "101px", height: "20px" }} />
+        </HeaderLogo>
 
-          {/* 사이드바 + 유튜브 로고 */}
-          <HeaderLogo>
-            <img src="/icons/sidebarIcon.svg" alt="Sidebar Logo" style={({width:"24px"})}/>
-            <img src="/icons/youtubeLogo.svg" alt="YouTube Logo" style={({width:"101px",height:"20"})}/>
-          </HeaderLogo>
-
-          <SearchBarLayout>
-            {/* 검색바 */}
-            <SearchBar>
-              {/* 여기서 돋보기 아이콘이 true가 되면 SearchBar의 왼쪽의 width가 늘어나야함 */}
-              <SearchBarLeft>
-                {searchLogo && (
-                    <img src="/icons/searchIcon.svg" alt="Search Icon" style={({width:"18px", height:"18px"})}/>
-                  )}
-                  <SearchBarInput
-                    placeholder="검색"
-                    onFocus={() => setSearchLogo(true)}
-                    onBlur={() => setSearchLogo(false)}
-                    value={transcript}
-                  />
-                </SearchBarLeft>
-              <SearchBarRight>
-                <img src="/icons/searchIcon.svg" alt="Search Icon" style={({width:"18px", height:"18px"})}/>
-              </SearchBarRight>
+        {/* 검색바 */}
+        <SearchBarLayout as="form" onSubmit={handleSearch}>
+          <SearchBar>
+            <SearchBarLeft>
+              {searchLogo && <img src="/icons/searchIcon.svg" alt="Search Icon" style={{ width: "18px", height: "18px" }} />}
+              <SearchBarInput
+                placeholder="검색"
+                onFocus={() => setSearchLogo(true)}
+                onBlur={() => setSearchLogo(false)}
+                value={transcript || searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </SearchBarLeft>
+            <SearchBarRight type="submit">
+              <img src="/icons/searchIcon.svg" alt="Search Icon" style={{ width: "18px", height: "18px" }} />
+            </SearchBarRight>
             <SpeechButton onClick={toggleListening}>
               {listening ? "음성인식중지" : "음성인식시작"}
             </SpeechButton>
-            </SearchBar>
-          </SearchBarLayout>
+          </SearchBar>
+        </SearchBarLayout>
 
-          <RightSection>
-            <Make>+ 만들기</Make>
-            <Notification>알림</Notification>
-            <Profile>프로필</Profile>
-          </RightSection>
-        </HeaderContainer>
-      </HeaderWrapper>
-    </>
+        {/* 우측 메뉴 */}
+        <RightSection>
+          <Make>+ 만들기</Make>
+          <Notification>알림</Notification>
+          <Profile>프로필</Profile>
+        </RightSection>
+      </HeaderContainer>
+    </HeaderWrapper>
   );
-}
+};
 
 export default Header;
 
+// 스타일 코드 (기존 코드 유지)
 const HeaderWrapper = styled.header`
   position: fixed;
   top: 0;
@@ -80,7 +97,6 @@ const HeaderWrapper = styled.header`
 const HeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  /* height: 56px; */
   align-items: center;
   flex-direction: row;
 `;
@@ -89,7 +105,7 @@ const HeaderLogo = styled.div`
  display: flex;
 `;
 
-const SearchBarLayout = styled.div`
+const SearchBarLayout = styled.form`
   flex: 0 1 732px;
   flex-direction: row;
   align-items: center;
@@ -100,7 +116,6 @@ const SearchBar = styled.div`
   display: flex;
   position: relative;
   height: 40px;
-  /* align-items: center; */
 `;
 
 const SearchBarLeft = styled.div`
@@ -114,7 +129,6 @@ const SearchBarLeft = styled.div`
 `;
 
 const SearchBarInput = styled.input`
-  position: relative;
   width: 100%;
   border: none;
   height: 20px;
@@ -127,19 +141,23 @@ const SearchBarInput = styled.input`
   }
 `;
 
-const SearchBarRight = styled.div`
+const SearchBarRight = styled.button`
   width: 60px;
   border: 1px solid #c6c6c6;
   border-radius: 0 40px 40px 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: none;
+  cursor: pointer;
 `;
 
 const SpeechButton = styled.button`
   border-radius: 40px;
   border: none;
+  cursor: pointer;
 `;
+
 const RightSection = styled.div`
   display: flex;
   height: 40px;
